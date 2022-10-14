@@ -1,6 +1,6 @@
 # Next.js Teslo Shop
 
-Esta aplicación es una e-ecommerce inspirtada en la tienda de Tesla Official.
+Esta aplicación es una e-commerce inspirada en la tienda de Tesla Official.
 
 Para correr en local la aplicación es necesario crear una base de datos, recomendamos usar MongoDB y Docker.
 
