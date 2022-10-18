@@ -1,20 +1,17 @@
 import type { NextPage } from 'next';
-import { Card, CardActionArea, CardMedia, Grid, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 
+import { useProducts } from '../hooks';
 import { ShopLayout } from '../components/layouts';
-
 import { ProductList } from '../components/products';
+import { FullScreenLoading } from '../components/ui';
 
-import useSWR from "swr";
-const fetcher = (...args: [key: string]) => fetch(...args).then(res => res.json())
 
 
 
 const HomePage: NextPage = () => {
 
-  const { data, error } = useSWR("/api/products", fetcher);
-  if (error) return <div>failed to load</div>
-  if (!data) return <div>loading...</div>
+  const { products, isLoading } = useProducts('/products');
 
 
   return (
@@ -27,10 +24,11 @@ const HomePage: NextPage = () => {
         Todos los productos
       </Typography>
 
-
-      <ProductList
-        products={data}
-      />
+      {
+        isLoading
+          ? <FullScreenLoading/>
+          : <ProductList products={products} />
+      }
 
     </ShopLayout>
   )
