@@ -9,19 +9,21 @@ import { FullScreenLoading } from '../../components/ui';
 
 
 
-const MenPage: NextPage = () => {
+const SearchPage: NextPage = () => {
 
-  const { products, isLoading } = useProducts('/products?gender=men');
+    
+
+  const { products, isLoading } = useProducts('/products');
 
 
   return (
 
-    <ShopLayout title={'Teslo-Shop - Men'} pageDescription={'Encuentra los mejores productos de Teslo para hombres.'}>
+    <ShopLayout title={'Teslo-Shop - Search'} pageDescription={'Encuentra los mejores productos de Teslo aquí.'}>
       <Typography variant="h1" component="h1">
-        Hombres
+        Buscar producto
       </Typography>
       <Typography variant="h2" sx={{ mb: 1 }}>
-        Productos para hombres
+        ABC --- 123
       </Typography>
 
       {
@@ -34,4 +36,4 @@ const MenPage: NextPage = () => {
   )
 }
 
-export default MenPage
+export default SearchPage;
