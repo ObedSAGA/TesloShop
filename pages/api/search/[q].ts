@@ -33,7 +33,6 @@ const searchProducts = async(req: NextApiRequest, res: NextApiResponse<Data>) =>
 
     q = q.toString().toLocaleLowerCase();
 
-
     await db.connect();
 
     const products = await Product.find({
@@ -41,7 +40,6 @@ const searchProducts = async(req: NextApiRequest, res: NextApiResponse<Data>) =>
     })
     .select('title images price inStock slug -_id')
     .lean()
-
 
     await db.disconnect();
 
