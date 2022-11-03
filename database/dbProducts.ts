@@ -49,5 +49,5 @@ export const getAllProducts = async(): Promise<IProduct[]> => {
     const products = await Product.find().lean();
     await db.disconnect();
 
-    return JSON.parse(JSON.stringify(products));
+    return JSON.parse( JSON.stringify( products ) );
 }
