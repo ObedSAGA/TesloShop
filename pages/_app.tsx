@@ -1,10 +1,10 @@
 import type { AppProps } from 'next/app'
 import { SWRConfig } from 'swr';
-import { CssBaseline, ThemeProvider } from '@mui/material'
+import { CartProvider, UiProvider } from '../context';
 
+import { CssBaseline, ThemeProvider } from '@mui/material'
 import { lightTheme } from '../themes';
 import '../styles/globals.css'
-import { UiProvider } from '../context';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -13,13 +13,15 @@ function MyApp({ Component, pageProps }: AppProps) {
         fetcher: (resource, init) => fetch(resource, init).then(res => res.json())
       }}
     >
-      <UiProvider>
-        <ThemeProvider theme={lightTheme}>
-          <CssBaseline>
-            <Component {...pageProps} />
-          </CssBaseline>
-        </ThemeProvider>
-      </UiProvider>
+      <CartProvider>
+        <UiProvider>
+          <ThemeProvider theme={lightTheme}>
+            <CssBaseline>
+              <Component {...pageProps} />
+            </CssBaseline>
+          </ThemeProvider>
+        </UiProvider>
+      </CartProvider>
     </SWRConfig>
 
   )
