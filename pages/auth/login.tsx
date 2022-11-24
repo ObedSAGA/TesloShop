@@ -1,31 +1,60 @@
+import { useState } from 'react';
 
 import NextLink from 'next/link';
-import { Grid, Typography, TextField, Button, Link } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, Grid, Typography, TextField, Button, Link, Chip } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
 import { AuthLayout } from '../../components/layouts'
 import { useForm } from 'react-hook-form';
+import { validations } from '../../utils';
+import { tesloApi } from '../../api';
 
 
 type FormData = {
-    email: string,
-    password: string,
+    email    : string,
+    password : string,
 };
 
 const LoginPage = () => {
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>();
+    const [showError, setShowError] = useState(false);
 
-    const onLoginUser = (data: FormData) => {
-        console.log({ data });
+
+    const onLoginUser = async ({ email, password}: FormData) => {
+
+        setShowError(false);
+
+        try {
+            const { data } = await tesloApi.post( '/user/login', { email, password });
+            const { token, user } = data;
+            console.log({ token, user });
+        
+        } catch (error) {
+            console.log('Error in credentials authentication');
+            setShowError(true);
+            setTimeout(() => {
+                setShowError(false);
+            }, 3000);
+        }
+
+        //TODO: Navegar a la página donde el usuario estaba
+
 
     }
     return (
         <AuthLayout title='Login'>
-            <form onSubmit={handleSubmit(onLoginUser)}>
+            <form onSubmit={handleSubmit(onLoginUser)} noValidate>
                 <Box sx={{ width: 350, padding: '10px 20px' }}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography variant='h1' component='h1'>Iniciar sesión</Typography>
+                            <Chip
+                                label="Usuario o contraseña incorrectos"
+                                color="error"
+                                icon={ <ErrorOutline />}
+                                className="fadeIn"
+                                style={{ display: showError ? 'flex' : 'none'}}
+                            />
                         </Grid>
                         <Grid item xs={12}>
                             <TextField
@@ -33,7 +62,13 @@ const LoginPage = () => {
                                 label='Correo electrónico' 
                                 variant='filled' 
                                 fullWidth 
-                                { ...register('email')}
+                                { ...register('email', {
+                                    required: 'Este campo es obligatorio',
+                                    validate: validations.isEmail,
+                                }
+                                )}
+                                error={ !!errors.email }
+                                helperText={ errors.email?.message }
                             />
                         </Grid>
 
@@ -43,7 +78,12 @@ const LoginPage = () => {
                                 variant='filled' 
                                 type='password' 
                                 fullWidth 
-                                { ...register('password')}
+                                { ...register('password', {
+                                    required: 'Este campo es obligatorio',
+                                })}
+                                error={ !!errors.password }
+                                helperText={ errors.password?.message}
+                    
                             />
                         </Grid>
 
@@ -52,7 +92,9 @@ const LoginPage = () => {
                                 type='submit'
                                 variant='contained'
                                 color='secondary'
-                                fullWidth>
+                                fullWidth
+                                disabled={ showError }
+                            >
                                 Login
                             </Button>
                         </Grid>
