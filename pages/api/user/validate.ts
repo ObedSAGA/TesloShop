@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import bcript from 'bcryptjs';
 import { db } from "../../../database";
 import { User } from "../../../models";
 import { jwt } from "../../../utils";
