@@ -46,7 +46,9 @@ const RegisterPage = () => {
             return;
         }
 
-        router.replace('/');
+        //Navega a la página donde el usuario estaba mediante query parametros
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination);
     
     }
 
@@ -128,7 +130,10 @@ const RegisterPage = () => {
 
                         <Grid item xs={12} display='flex' justifyContent='center'>
                             <Typography sx={{ mr: 1 }}>¿Ya tiene cuenta?</Typography>
-                            <NextLink href='/auth/login' passHref>
+                            <NextLink 
+                               href={router.query.p ? `/auth/login?p=${ router.query.p }` : '/auth/login'}
+                                passHref
+                            >
                                 <Link underline='always'>Iniciar sesión.</Link>
                             </NextLink>
                         </Grid>

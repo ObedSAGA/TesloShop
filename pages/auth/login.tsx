@@ -43,7 +43,7 @@ const LoginPage = () => {
         };
 
 
-        //Navegar a la página donde el usuario estaba mediante query parametros
+        //Navega a la página donde el usuario estaba mediante query parametros
         const destination = router.query.p?.toString() || '/'
         router.replace(destination);
 
@@ -109,7 +109,7 @@ const LoginPage = () => {
 
                         <Grid item xs={12} display='flex' justifyContent='center'>
                             <Typography sx={{ mr: 1 }}>¿No tienes cuenta?</Typography>
-                            <NextLink href='/auth/register' passHref>
+                            <NextLink href={  router.query.p ? `/auth/register?p=${ router.query.p }` : '/auth/register' } passHref>
                                 <Link underline='always'>Regístrate.</Link>
                             </NextLink>
                         </Grid>
