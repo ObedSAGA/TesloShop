@@ -41,9 +41,11 @@ const LoginPage = () => {
             }, 3000);
             return;
         };
-        //TODO: Navegar a la página donde el usuario estaba
 
-        router.replace('/');
+
+        //Navegar a la página donde el usuario estaba mediante query parametros
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination);
 
 
     }

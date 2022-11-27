@@ -7,7 +7,7 @@ import { AuthContext, UiContext } from "../../context";
 
 export const SideMenu = () => {
 
-    const router = useRouter()
+    const router = useRouter();
 
     const { isMenuOpen, toggleSideMenu } = useContext(UiContext);
 
@@ -123,7 +123,7 @@ export const SideMenu = () => {
                                 </ListItemButton>
                             )
                             : (
-                                <ListItemButton >
+                                <ListItemButton onClick={ () => navigateTo(`/auth/login?p=${ router.asPath}`)} >
                                     <ListItemIcon>
                                         <VpnKeyOutlined />
                                     </ListItemIcon>
