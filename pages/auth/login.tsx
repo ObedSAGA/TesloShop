@@ -9,7 +9,6 @@ import { useForm } from 'react-hook-form';
 import { AuthContext } from '../../context';
 import { AuthLayout } from '../../components/layouts'
 import { validations } from '../../utils';
-import { tesloApi } from '../../api';
 
 
 type FormData = {
@@ -45,10 +44,13 @@ const LoginPage = () => {
 
         //Navega a la página donde el usuario estaba mediante query parametros
         const destination = router.query.p?.toString() || '/'
+        console.log(destination);
+        
         router.replace(destination);
 
 
     }
+    
     return (
         <AuthLayout title='Login'>
             <form onSubmit={handleSubmit(onLoginUser)} noValidate>

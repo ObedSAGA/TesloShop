@@ -140,7 +140,7 @@ const RegisterPage = () => {
                     </Grid>
                 </Box>
             </form>
-        </AuthLayout>
+        </AuthLayout> 
     )
 }
 
