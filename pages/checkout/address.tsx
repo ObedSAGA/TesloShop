@@ -1,7 +1,9 @@
+import { useContext } from 'react';
 import { GetServerSideProps } from 'next';
 import { useRouter } from 'next/router';
 import { FormControl, Grid, InputLabel, MenuItem, Select, TextField, Typography, Button, Box } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import { CartContext } from '../../context';
 import { ShopLayout } from '../../components/layouts';
 import { countries, jwt } from '../../utils';
 import Cookies from 'js-cookie';
@@ -19,36 +21,34 @@ type FormData = {
 
 }
 
+const getAddressFromCookies = (): FormData => {
+    return {
+        firstName : Cookies.get('firstName') || '',
+        lastName  : Cookies.get('lastName') || '',
+        address   : Cookies.get('address') || '',
+        address2  : Cookies.get('address2') || '',
+        zipcode   : Cookies.get('zipcode') || '',
+        city      : Cookies.get('city') || '',
+        country   : Cookies.get('country') || '',
+        phone     : Cookies.get('phone') || '',
+    }
+}
+
 
 
 const AdressPage = () => {
 
     const router = useRouter();
 
+    const { updateAddres } = useContext(CartContext);
+
     const { register, handleSubmit, formState: { errors }} = useForm<FormData>({
-        defaultValues: {
-            firstName: '',
-            lastName: '', 
-            address: '',  
-            address2: '',
-            zipcode: '',  
-            city: '',     
-            country: '',  
-            phone: '',    
-        }
+        defaultValues: getAddressFromCookies(),
     });
 
 const onSubmitAdress = ( data: FormData ) => {
-    console.log(data);
-    Cookies.set('firstName', data.firstName)
-    Cookies.set('lastName', data.lastName)
-    Cookies.set('address', data.address)
-    Cookies.set('address2', data.address2 || '')
-    Cookies.set('zipcode', data.zipcode)
-    Cookies.set('city', data.city)
-    Cookies.set('country', data.country)
-    Cookies.set('phone', data.phone)
 
+    updateAddres(data);
     router.push('/checkout/summary');
     
 }
@@ -140,12 +140,13 @@ const onSubmitAdress = ( data: FormData ) => {
                         <InputLabel>País</InputLabel>
                         <Select
                             variant='filled'
-                            defaultValue="" 
                             fullWidth
+                            defaultValue={Cookies.get('country') || ''}
                             { ...register('country', {
                                 required: 'Este campo es obligatorio',
                             })}
-                                error={ !!errors.country }                        >
+                                error={ !!errors.country }                        
+                        >
 
                             {
                                 countries.map( country => (
