@@ -1,6 +1,7 @@
 import { useContext, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
+import { signIn } from 'next-auth/react';
 
 import { Box, Grid, Typography, TextField, Button, Link, Chip } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
@@ -31,22 +32,21 @@ const LoginPage = () => {
 
         setShowError(false);
 
-        const isValidLogin = await loginUser( email, password );
+        // THIS WAS USED WITH OUT CUSTOM AUTHENTICATION BUT WITH NEXT-AUTH IS NO NECESARY
+        // const isValidLogin = await loginUser( email, password );
+        // if (!isValidLogin) {
+        //     setShowError(true);
+        //     setTimeout(() => {
+        //         setShowError(false);
+        //     }, 3000);
+        //     return;
+        // };
+        // //Navega a la página donde el usuario estaba mediante query parametros
+        // const destination = router.query.p?.toString() || '/'
+        // console.log(destination);
+        // router.replace(destination);
 
-        if (!isValidLogin) {
-            setShowError(true);
-            setTimeout(() => {
-                setShowError(false);
-            }, 3000);
-            return;
-        };
-
-
-        //Navega a la página donde el usuario estaba mediante query parametros
-        const destination = router.query.p?.toString() || '/'
-        console.log(destination);
-        
-        router.replace(destination);
+        await signIn('credentials', { email, password });
 
 
     }

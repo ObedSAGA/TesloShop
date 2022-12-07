@@ -1,58 +1,75 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
-import Credentials from "next-auth/providers/credentials";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { dbUsers } from "../../../database";
+ 
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+  }
+}
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   providers: [
-    Credentials({
-      name: "Email",
+
+    CredentialsProvider({ 
+      name: 'Email',
       credentials: {
-        email: {
-          label: "Correo electrónico",
-          type: "email",
-        },
-        password: { label: "Contraseña", type: "password",},
+        email: { label: 'Correo electrónico:', type: 'email' },
+        password: { label: 'Contraseña:', type: 'password' },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         console.log({ credentials });
 
-        return { name: 'Juan', correo: 'juan@correo.com', role: 'admin'};
+        return await dbUsers.checkUserEmailPassword( credentials!.email, credentials!.password)
       },
     }),
 
     GithubProvider({
-      clientId: process.env.GITHUB_ID,
-      clientSecret: process.env.GITHUB_SECRET,
+      clientId: process.env.GITHUB_ID || '',
+      clientSecret: process.env.GITHUB_SECRET || '',
     }),
-
     // ...add more providers here
-
-
   ],
 
   // Callbacks
-  jwt: {
 
-  },
+    callbacks: { 
 
-  callbacks: {
+      async jwt({ token, account, user}) {
+        console.log({ token, account, user});
 
-     async jwt({ token, account, user }){
+        if ( account ) {
+          token.accessToken = account.access_token;
 
-      console.log({ token, account, user });
+          switch ( account.type ) {
+            case 'oauth':
+              token.user = await dbUsers.oAuthToDbUser( user?.email || '', user?.name || '');
+              break;
 
-      return token;
-    },
+            case 'credentials':
+              token.user = user;
+              break;
+          
+          }
+        }
 
-    async session({ session, token, user }){
+        
+        return token;
+      },
 
-      console.log({ session, token, user });
-      
+      async session({ session, token, user }) {
+        // console.log({ session, token, user });
 
-      return session;
+        session.accessToken = token.accessToken as string;
+        session.user = token.user as any;
+        
+
+        return session;
+      }
+
     }
-  }
-};
 
+}
 export default NextAuth(authOptions);

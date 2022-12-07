@@ -1,6 +1,6 @@
 import { FC, ReactNode, useReducer, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { tesloApi } from '../../api';
@@ -29,12 +29,12 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      // TODO: dispatch({ type: '[Auth] - Login', payload: data?.user as IUser})
+      console.log({ user: data?.user });
+      dispatch({ type: '[Auth] - Login', payload: data?.user as IUser})
       
     }
   }, [ status, data ])
   
-
 
   // useEffect(() => {
   //   checkToken();
@@ -95,7 +95,6 @@ export const AuthProvider: FC<Props> = ({ children }) => {
   }
 
   const logout = () => {
-    Cookies.remove('token');
     Cookies.remove('cart');
     Cookies.remove('firstName');
     Cookies.remove('lastName');
@@ -105,8 +104,12 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     Cookies.remove('city');
     Cookies.remove('country');
     Cookies.remove('phone');
-  
-    router.reload();
+
+    signOut();
+    
+  // This was used to lo in out custom authentication but with NextAuth is not necessary
+    // router.reload();
+    // Cookies.remove('token');
   }
 
   return (
