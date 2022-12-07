@@ -33,8 +33,21 @@ export const authOptions: NextAuthOptions = {
     // ...add more providers here
   ],
 
-  // Callbacks
 
+  // Custom pages
+
+  pages: { 
+    signIn: '/auth/login',
+    newUser: '/auth/register',
+  },
+
+  session: {
+    maxAge: 2592000, // Every 30 days
+    strategy: 'jwt',
+    updateAge: 86400, // Every day
+  },
+
+  // Callbacks
     callbacks: { 
 
       async jwt({ token, account, user}) {
