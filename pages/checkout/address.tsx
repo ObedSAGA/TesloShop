@@ -66,7 +66,7 @@ const AdressPage = () => {
         <ShopLayout title='Dirección del cliente' pageDescription={'Confirma la dirección de envío'}>
 
             <form onSubmit={handleSubmit(onSubmitAdress)}>
-                <Typography variant='h1' component='h1'>Dirección</Typography>
+                <Typography variant='h1' component='h1'>Dirección de envío</Typography>
 
                 <Grid container spacing={2} sx={{ mt: 2 }}>
                     <Grid item xs={12} sm={6}>

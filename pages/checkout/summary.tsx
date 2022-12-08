@@ -14,7 +14,7 @@ import Cookies from 'js-cookie';
 const SummaryPage = () => {
 
     const router = useRouter();
-    const { shippingAddress, numberOfItems } = useContext(CartContext);
+    const { shippingAddress, numberOfItems, createOrder } = useContext(CartContext);
 
     useEffect(() => {
        if (!Cookies.get('firstName')) {
@@ -22,6 +22,11 @@ const SummaryPage = () => {
        } 
     }, [ router ])
     
+
+    const onCreateOrder = () => {
+        createOrder();
+
+    }
 
 
     if (!shippingAddress) {
@@ -33,7 +38,7 @@ const SummaryPage = () => {
 
     return (
         <ShopLayout title='Resumen de la compra' pageDescription='Productos listos para comprar'>
-            <Typography variant='h1' component='h1'>Resumen de compra</Typography>
+            <Typography sx={{ mb: 2}} variant='h1' component='h1'>Resumen de compra</Typography>
             <Grid container>
                 <Grid item xs={12} sm={7}>
                     <CartList />
@@ -72,7 +77,12 @@ const SummaryPage = () => {
                             <OrderSummary />
 
                             <Box sx={{ mt: 3 }}>
-                                <Button color="secondary" className='circular-btn' fullWidth>
+                                <Button
+                                  color="secondary"
+                                  className='circular-btn'
+                                  fullWidth
+                                  onClick={ createOrder }
+                                >
                                     Confirmar pedido
                                 </Button>
 
