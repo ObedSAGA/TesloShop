@@ -1,14 +1,24 @@
-import { useContext } from "react";
+import { FC, useContext } from "react";
 import { Grid, Typography } from "@mui/material";
 import { CartContext } from "../../context";
 import { currency } from "../../utils";
 
+interface Props {
+    orderValues : {
+        numberOfItems  : number;
+        subTotal       : number;
+        total          : number;
+        tax            : number;
+    }
+}
 
 
+export const OrderSummary:FC<Props> = ({ orderValues }) => {
 
-export const OrderSummary = () => {
-
+  
     const { numberOfItems, subTotal, total, tax } = useContext( CartContext )
+    
+    const summaryValues = orderValues ? orderValues : { numberOfItems, subTotal, total, tax }
 
     return (
         <Grid container>
@@ -17,7 +27,7 @@ export const OrderSummary = () => {
             </Grid>
 
             <Grid item xs={6} display='flex' justifyContent='end'>
-                <Typography>{ numberOfItems } {numberOfItems === 1 ? 'producto' : 'productos'}</Typography>
+                <Typography>{ summaryValues.numberOfItems } {summaryValues.numberOfItems === 1 ? 'producto' : 'productos'}</Typography>
             </Grid>
 
             <Grid item xs={6} >
@@ -25,7 +35,7 @@ export const OrderSummary = () => {
             </Grid>
 
             <Grid item xs={6} display='flex' justifyContent='end'>
-                <Typography>{ currency.format(subTotal) }</Typography>
+                <Typography>{ currency.format(summaryValues.subTotal) }</Typography>
             </Grid>
 
             <Grid item xs={6} >
@@ -33,7 +43,7 @@ export const OrderSummary = () => {
             </Grid>
 
             <Grid item xs={6} display='flex' justifyContent='end'>
-                <Typography>{ currency.format(tax) }</Typography>
+                <Typography>{ currency.format(summaryValues.tax) }</Typography>
             </Grid>
 
             <Grid item xs={6} sx={{ mt: 2 }} >
@@ -41,7 +51,7 @@ export const OrderSummary = () => {
             </Grid>
 
             <Grid item xs={6} display='flex' justifyContent='end' sx={{ mt: 2 }}>
-                <Typography variant="subtitle1">{ currency.format(total) }</Typography>
+                <Typography variant="subtitle1">{ currency.format(summaryValues.total) }</Typography>
             </Grid>
 
 

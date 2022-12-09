@@ -7,6 +7,7 @@ import { ShopLayout } from '../../components/layouts';
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces';
+import { countries } from '../../utils';
 
 
 interface Props {
@@ -16,68 +17,86 @@ interface Props {
 
 const OrderPage: NextPage<Props> = ({ order }) => {
 
-    console.log({ order });
+
+    const { shippingAddress } = order;
 
     return (
-        <ShopLayout title='Confirmación de pedido 4964644545' pageDescription='Confirmación de pedido a pagar'>
-            <Typography variant='h1' component='h1'>Pedido: 51515</Typography>
+        <ShopLayout title='Confirmación de pedido' pageDescription='Confirmación de pedido a pagar'>
+            <Typography variant='h1' component='h1'>Pedido: {order._id?.slice(0, 5) + '- E'}</Typography>
 
-            {/* <Chip
-            sx={{ my: 2 }}
-            label='Pendiente de pago'
-            variant='outlined'
-            color='error'
-            icon={ <CreditCardOffOutlined/>}
-        /> */}
-            <Chip
-                sx={{ my: 2 }}
-                label='Pago realizado'
-                variant='outlined'
-                color='success'
-                icon={<CreditScoreOutlined />}
-            />
+
+            {
+                order.isPaid
+                    ? (
+                        <Chip
+                            sx={{ my: 2 }}
+                            label='Pago realizado'
+                            variant='outlined'
+                            color='success'
+                            icon={<CreditScoreOutlined />}
+                        />
+                    )
+
+                    : (
+                        <Chip
+                            sx={{ my: 2 }}
+                            label='Pendiente de pago'
+                            variant='outlined'
+                            color='error'
+                            icon={<CreditCardOffOutlined />}
+                        />
+
+                    )
+            }
+
 
             <Grid container>
                 <Grid item xs={12} sm={7}>
-                    <CartList />
+                    <CartList products={ order.orderItems } />
                 </Grid>
                 <Grid item xs={12} sm={5}>
                     <Card className='summary-card'>
                         <CardContent>
-                            <Typography variant='h2'>Resumen</Typography>
+                            <Typography variant='h2'>Resumen de la compra</Typography>
                             <Divider sx={{ my: 1 }} />
 
-                            <Box display='flex' justifyContent='space-between'>
-                                <Typography variant='subtitle1'>Dirección de entrega</Typography>
-                                <NextLink href='/checkout/address' passHref>
-                                    <Link underline='always'>
-                                        Editar
-                                    </Link>
-                                </NextLink>
-                            </Box>
+                            
 
-                            <Typography>Alberto Herrera</Typography>
-                            <Typography>C/ Hortes 76 2-1</Typography>
-                            <Typography>CP: 08005 Barcelona, España </Typography>
-                            <Typography>+34 622 90 90 90</Typography>
+                            <Typography>{ shippingAddress.firstName } { shippingAddress.lastName}</Typography>
+                            <Typography>{ shippingAddress.address } { shippingAddress.address2 ? shippingAddress.address2 : '' }</Typography>
+                            <Typography>CP: { shippingAddress.zipcode }</Typography>
+                            <Typography>{ shippingAddress.city }, { countries.find( c => c.code === shippingAddress.country)?.name } </Typography>
+                            <Typography>Telf. { shippingAddress.phone }</Typography>
 
                             <Divider sx={{ my: 1 }} />
 
-                            <Box display='flex' justifyContent='end'>
-                                <NextLink href='/cart' passHref>
-                                    <Link underline='always'>
-                                        Editar
-                                    </Link>
-                                </NextLink>
-                            </Box>
 
+                            <OrderSummary orderValues={{ 
+                                    numberOfItems: order.numberOfItems,
+                                    subTotal: order.subTotal, 
+                                    total: order.total, 
+                                    tax: order.tax,
+                                }}                               
+                            />
 
-                            <OrderSummary />
+                            <Box sx={{ mt: 3 }} display='flex' flexDirection='column'>
 
-                            <Box sx={{ mt: 3 }}>
-                                {/* TODO:  */}
-                                <h1>Pagar</h1>
+                                {
+                                    order.isPaid
+                                    ? (
+                                        <Chip
+                                        sx={{ my: 2 }}
+                                        label='Orden pagada'
+                                        variant='outlined'
+                                        color='success'
+                                        icon={ <CreditScoreOutlined/> }
+                                        />
+                                    )
+                                    : (
+                                        <h1>Pagar</h1>
 
+                                    )
+                                }
                             </Box>
 
 

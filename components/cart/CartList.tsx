@@ -4,15 +4,16 @@ import { Grid, Link, Typography, CardActionArea, CardMedia, Box, IconButton } fr
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ItemCounter } from '../ui';
 import { CartContext } from '../../context';
-import { ICartProduct } from '../../interfaces';
+import { ICartProduct, IOrderItem } from '../../interfaces';
 
 
 
 interface Props {
   editable?: boolean;
+  products?: IOrderItem[];
 }
 
-export const CartList: FC<Props> = ({ editable = false }) => {
+export const CartList: FC<Props> = ({ editable = false, products  }) => {
 
   const { cart, updateCartQuantity, removeProductCart } = useContext(CartContext);
 
@@ -21,11 +22,12 @@ export const CartList: FC<Props> = ({ editable = false }) => {
     updateCartQuantity( product );
   }
 
+  const productsToShow = products ? products : cart;
 
   return (
     <>
       {
-        cart.map(product => (
+        productsToShow.map(product => (
           <Grid container spacing={2} key={product.slug + product.size} sx={{ mb: 1 }}>
             <Grid item xs={3}>
               <NextLink href={`/product/${product.slug}`} passHref>
@@ -53,7 +55,7 @@ export const CartList: FC<Props> = ({ editable = false }) => {
                       <ItemCounter
                         currentValue={product.quantity}
                         maxValue={10}
-                        updateQuantity={( value ) => onNewCartQuantityValue( product, value)}
+                        updateQuantity={( value ) => onNewCartQuantityValue( product as ICartProduct, value)}
                       />
 
                     )
@@ -72,7 +74,7 @@ export const CartList: FC<Props> = ({ editable = false }) => {
               {
                 editable && (
                   <IconButton 
-                    onClick={ () => removeProductCart( product ) }
+                    onClick={ () => removeProductCart( product as ICartProduct ) }
                     aria-label='Eliminar' 
                     color='secondary'
                   >
