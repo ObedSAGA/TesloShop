@@ -33,6 +33,9 @@ const orderSchema = new Schema({
       isPaid    : { type: Boolean, required: true},
       paidAt    : { type: String },
 
+
+      transactionID: { type: String },
+
     }, {
         timestamps: true,
 })

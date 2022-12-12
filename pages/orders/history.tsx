@@ -3,7 +3,7 @@ import NextLink from 'next/link';
 import { getSession } from 'next-auth/react';
 
 import { Grid, Typography, Chip, Link } from '@mui/material';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, } from '@mui/x-data-grid';
 import { ShopLayout } from '../../components/layouts';
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces';
@@ -16,7 +16,7 @@ const columns: GridColDef[] = [
         field: 'paid', 
         headerName: 'Estado de pago', 
         width: 150,
-        renderCell: (params: GridValueGetterParams) => {
+        renderCell: (params: GridRenderCellParams) => {
             return (
                 params.row.paid 
                     ? <Chip label='Pagado' color='success' variant='outlined' />
@@ -30,7 +30,7 @@ const columns: GridColDef[] = [
         headerName: 'Resumen de pedido', 
         width: 150,
         sortable: false,
-        renderCell: (params: GridValueGetterParams ) => (
+        renderCell: (params: GridRenderCellParams ) => (
             
                 <NextLink href={`/orders/${params.row.orderID}`} passHref>
                     <Link underline='always'>Ver pedido</Link>
