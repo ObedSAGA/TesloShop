@@ -1,69 +1,110 @@
+import { useEffect, useState } from 'react'
 import { AccessTimeOutlined, AttachMoneyOutlined, CancelPresentationOutlined, CategoryOutlined, CreditCardOffOutlined, DashboardOutlined, GroupOutlined, ProductionQuantityLimits } from '@mui/icons-material'
-import { Grid } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
+import useSWR from 'swr'
 import { SummaryTile } from '../../components/admin'
 import { AdminLayout } from '../../components/layouts'
+import { DashboardSummaryReponse } from '../../interfaces'
 
 function DashboardPage() {
-  return (
-    <AdminLayout
-        title='Dashboard'
-        subtitle='Estadísticas generales'
-        icon={ <DashboardOutlined/> }
-    >
-        <Grid container spacing={2}>
 
-            <SummaryTile 
-                title={1} 
-                subtitle={'Pedidos'} 
-                icon={ <CreditCardOffOutlined color='secondary' sx={{ fontSize: 40 }}/>}            
-            />
+    const { data, error } = useSWR<DashboardSummaryReponse>('/api/admin/dashboard', {
+        refreshInterval: 30 * 1000, // 30 seconds
+    })
 
-            <SummaryTile 
-                title={2} 
-                subtitle={'Pedidos pagados'} 
-                icon={ <AttachMoneyOutlined color='success' sx={{ fontSize: 40 }}/>}            
-            />
+    const [refreshIn, setRefreshIn] = useState(30);
 
-            <SummaryTile 
-                title={3} 
-                subtitle={'Pendientes de pago'} 
-                icon={ <CreditCardOffOutlined color='error' sx={{ fontSize: 40 }}/>}            
-            />
+    // Countador de 30 segundos
+    useEffect(() => {
+        const interval = setInterval(() =>{
+            console.log('Tick');
+            setRefreshIn( refreshIn => refreshIn > 0 ? refreshIn - 1: 30  );
+        }, 1000)
 
-            <SummaryTile 
-                title={4} 
-                subtitle={'Clientes'} 
-                icon={ <GroupOutlined color='primary' sx={{ fontSize: 40 }}/>}            
-            />
+        return () => clearInterval( interval )
+    }, [])
+    // End contador
 
-            <SummaryTile 
-                title={5} 
-                subtitle={'Productos'} 
-                icon={ <CategoryOutlined color='warning' sx={{ fontSize: 40 }}/>}            
-            />
+    if (!error && !data) {
+        return <></>
+    }
 
-            <SummaryTile 
-                title={6} 
-                subtitle={'Productos agotados'} 
-                icon={ <CancelPresentationOutlined color='error' sx={{ fontSize: 40 }}/>}            
-            />
+    if (error) {
+        console.log(error);
+        return <Typography>Error al cargar la información</Typography>
 
-            <SummaryTile 
-                title={7} 
-                subtitle={'Bajo inventario'} 
-                icon={ <ProductionQuantityLimits color='warning' sx={{ fontSize: 40 }}/>}            
-            />
+    }
 
-            <SummaryTile 
-                title={8} 
-                subtitle={'Actualización en:'} 
-                icon={ <AccessTimeOutlined color='secondary' sx={{ fontSize: 40 }}/>}            
-            />
+    const {
+        numberOfOrders,
+        paidOrders,
+        numberOfClients,
+        numberOfProducts,
+        productsWithNoStock,
+        productsWithLowStock,
+        notPaidOrders,
+    } = data!;
+
+    return (
+        <AdminLayout
+            title='Dashboard'
+            subtitle='Estadísticas generales'
+            icon={<DashboardOutlined />}
+        >
+            <Grid container spacing={2}>
+
+                <SummaryTile
+                    title={numberOfOrders}
+                    subtitle={'Pedidos'}
+                    icon={<CreditCardOffOutlined color='secondary' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={paidOrders}
+                    subtitle={'Pedidos pagados'}
+                    icon={<AttachMoneyOutlined color='success' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={notPaidOrders}
+                    subtitle={'Pendientes de pago'}
+                    icon={<CreditCardOffOutlined color='error' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={numberOfClients}
+                    subtitle={'Clientes'}
+                    icon={<GroupOutlined color='primary' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={numberOfProducts}
+                    subtitle={'Productos'}
+                    icon={<CategoryOutlined color='warning' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={productsWithNoStock}
+                    subtitle={'Productos agotados'}
+                    icon={<CancelPresentationOutlined color='error' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={productsWithLowStock}
+                    subtitle={'Bajo inventario'}
+                    icon={<ProductionQuantityLimits color='warning' sx={{ fontSize: 40 }} />}
+                />
+
+                <SummaryTile
+                    title={refreshIn}
+                    subtitle={'Actualización en:'}
+                    icon={<AccessTimeOutlined color='secondary' sx={{ fontSize: 40 }} />}
+                />
 
 
-        </Grid>
-    </AdminLayout>
-  )
+            </Grid>
+        </AdminLayout>
+    )
 }
 
 export default DashboardPage
