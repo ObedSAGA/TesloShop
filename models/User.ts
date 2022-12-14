@@ -9,7 +9,7 @@ const userSchema = new Schema({
     role    : {
         type: String,
         enum: {
-            values  : [ 'admin', 'client'],
+            values  : [ 'admin', 'manager', 'client'],
             message : '{VALUE} no es un rol válido',
             default : 'client',
             required: true,

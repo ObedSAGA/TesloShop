@@ -149,12 +149,14 @@ export const SideMenu = () => {
                                     </ListItemIcon>
                                     <ListItemText primary={'Dashboard'} />
                                 </ListItemButton>
+
                                 <ListItemButton >
                                     <ListItemIcon>
                                         <CategoryOutlined />
                                     </ListItemIcon>
                                     <ListItemText primary={'Productos'} />
                                 </ListItemButton>
+
                                 <ListItemButton >
                                     <ListItemIcon>
                                         <ConfirmationNumberOutlined />
@@ -162,10 +164,12 @@ export const SideMenu = () => {
                                     <ListItemText primary={'Ordenes'} />
                                 </ListItemButton>
 
-                                <ListItemButton >
-                                    <ListItemIcon>
+                                <ListItemButton 
+                                    onClick={ () => navigateTo(`/admin/users`)}
+                                >
+                                    <ListItemIcon >
                                         <AdminPanelSettings />
-                                    </ListItemIcon>
+                                    </ListItemIcon >
                                     <ListItemText primary={'Usuarios'} />
                                 </ListItemButton>
                             </>
