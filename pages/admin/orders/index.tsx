@@ -8,7 +8,7 @@ import { IOrder } from '../../../interfaces/order';
 
 
 const columns:GridColDef[] = [
-  { field: 'id', headerName: 'Orden ID', width: 250},
+  { field: 'id', headerName: 'Pedido ID', width: 250},
   { field: 'email', headerName: 'Email', width: 200},
   { field: 'name', headerName: 'Nombre', width: 200},
   { field: 'total', headerName: 'Total', width: 120},
