@@ -6,6 +6,7 @@ import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
 import { dbProducts } from '../../../database';
+import { tesloApi } from '../../../api';
 
 
 const validTypes  = ['shirts','pants','hoodies','hats']
@@ -35,6 +36,7 @@ interface Props {
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
     const [newTagValue, setNewTagValue] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     const { register, handleSubmit, formState:{ errors }, getValues, setValue, watch } = useForm<FormData>({
         defaultValues: product
@@ -85,8 +87,31 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         setValue('tags', updatedTags, { shouldValidate: true });
     }
 
-    const onSubmitForm = ( form: FormData ) => {
-        console.log(form);
+    const onSubmitForm = async( form: FormData ) => {
+        if ( form.images.length < 2) {
+            return alert('Please add at least two images');
+        }
+
+        setIsSaving(true);
+
+        try {
+            const { data } = await tesloApi({
+                url: '/admin/products/',
+                method: 'PUT',  // TODO: si tenemos un _id actualiza, si no crear nuevo producto
+                data: form,
+            })
+
+            console.log({ data });
+            if ( !form._id ) {
+                // TODO: Recargar navegador
+            } else {
+                setIsSaving(false);
+            }          
+
+        } catch (error) {
+            console.log(error);
+            setIsSaving(false);
+        }
         
     }
 
@@ -103,6 +128,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                         startIcon={ <SaveOutlined /> }
                         sx={{ width: '150px' }}
                         type="submit"
+                        disabled={ isSaving }
                         >
                         Guardar
                     </Button>

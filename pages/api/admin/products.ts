@@ -4,7 +4,7 @@ import { db } from "../../../database";
 import { Product } from "../../../models";
 import { isValidObjectId } from "mongoose";
 
-type Data = { message: string } | IProduct[] | IProduct
+type Data = { message: string } | IProduct[] | IProduct;
 
 export default function handler(
   req: NextApiRequest,
@@ -15,9 +15,10 @@ export default function handler(
       return getProducts(req, res);
 
     case "PUT":
-      return updateProducts(req, res);
+      return updateProduct(req, res);
 
     case "POST":
+      return createProduct(req, res);
 
     default:
       return res.status(400).json({ message: "Bad request" });
@@ -34,23 +35,23 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   //tendremos que actualizar las imágenes
 };
 
-const updateProducts = async (
+const updateProduct = async (
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) => {
   const { _id = "", images = [] } = req.body as IProduct;
 
-  if (isValidObjectId(_id)) {
+  if (!isValidObjectId(_id)) {
     return res.status(400).json({ message: "Invalid product ID" });
   }
 
-  if (images.length <= 2) {
+  if (images.length < 2) {
     return res
       .status(400)
       .json({ message: "At least two images are required" });
   }
 
-  //TODO: posiblemente tendremos un path completo
+  //TODO: prevenir el localhost
 
   try {
     await db.connect();
@@ -59,22 +60,58 @@ const updateProducts = async (
       await db.disconnect();
       return res
         .status(400)
-        .json({ message: "Does not exist product with id: " + _id });
+        .json({ message: "Does not exist product with _id: " + _id });
     }
 
     //TODO: eliminar imágenes en Cloudinary
 
-
-    await product.update( req.body )
+    await product.update(req.body);
     await db.disconnect();
 
-    return res.status(200).json( product );
-
+    return res.status(200).json(product);
   } catch (error) {
-
     console.log(error);
     await db.disconnect();
     return res.status(400).json({ message: "Check console log server" });
-
   }
+};
+
+const createProduct = async (
+  req: NextApiRequest,
+  res: NextApiResponse<Data>
+) => {
+  const { images = [] } = req.body as IProduct;
+
+  if (images.length < 2) {
+    return res.status(400).json({ message: "At least two images are required" });
+  }
+
+  //TODO: prevenir el localhost
+
+  try {
+    
+    await db.connect();
+
+    const productInDB = await Product.findOne({ slug: req.body.slug });
+    if ( productInDB) {
+        await db.disconnect();
+        return res.status(400).json({ message: 'Already exists a product with this slug' });
+    }
+
+    const product = new Product( req.body );
+    await product.save();
+
+    await db.disconnect();
+
+    return res.status(201).json( product );
+
+  } catch (error) {
+
+    console.log(error);    
+    await db.disconnect();
+    return res.status(400).json({ message: "Check console log server" });
+  
+}
+
+
 };
