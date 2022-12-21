@@ -1,5 +1,6 @@
 import { FC, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router';
 import { useForm } from 'react-hook-form';
 import { Box, Button, capitalize, Card, CardActions, CardMedia, Checkbox, Chip, Divider, FormControl, FormControlLabel, FormGroup, FormLabel, Grid, ListItem, Paper, Radio, RadioGroup, TextField } from '@mui/material';
 import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons-material';
@@ -7,6 +8,7 @@ import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
 import { dbProducts } from '../../../database';
 import { tesloApi } from '../../../api';
+import { Product } from '../../../models';
 
 
 const validTypes  = ['shirts','pants','hoodies','hats']
@@ -35,6 +37,8 @@ interface Props {
 
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
+    const router = useRouter();
+
     const [newTagValue, setNewTagValue] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
@@ -43,7 +47,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
     })
 
     useEffect(() => {
-       const subscription = watch( ( value, { name, type }) => {
+       const subscription = watch(( value, { name, type }) => {
         if ( name === 'title' ) {
             const newSlug = value.title?.trim()
                                         .replaceAll(' ', '_')
@@ -97,13 +101,11 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         try {
             const { data } = await tesloApi({
                 url: '/admin/products/',
-                method: 'PUT',  // TODO: si tenemos un _id actualiza, si no crear nuevo producto
+                method: form._id ? 'PUT' : 'POST',  // si tenemos un _id actualiza, si no crear nuevo producto
                 data: form,
             })
-
-            console.log({ data });
             if ( !form._id ) {
-                // TODO: Recargar navegador
+                router.replace(`/admin/products/${ form.slug }`) // Recargar navegador
             } else {
                 setIsSaving(false);
             }          
@@ -220,7 +222,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                                 row
                                 { ...register('gender')}
                                 value={ getValues('gender') }
-                                onChange={ ({ target }) => setValue( 'type', target.value, { shouldValidate: true } ) }
+                                onChange={ ({ target }) => setValue( 'gender', target.value, { shouldValidate: true } ) }
                             >
                                 {
                                     validGender.map( option => (
@@ -360,8 +362,19 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     
     const { slug = ''} = query;
+
+    let product: IProduct | null
     
-    const product = await dbProducts.getProductsBySlug(slug.toString());
+    if( slug === 'new') {
+        //crear producto
+        const tempProduct = JSON.parse( JSON.stringify( new Product() ))
+        delete tempProduct._id;
+        tempProduct.images = [ 'img1.jpg', 'img2.jpg' ];
+        product = tempProduct;
+    } else {
+        product = await dbProducts.getProductsBySlug(slug.toString());
+        
+    }
 
     if ( !product ) {
         return {
