@@ -4,6 +4,9 @@ import { db } from "../../../database";
 import { Product } from "../../../models";
 import { isValidObjectId } from "mongoose";
 
+import { v2 as cloudinary } from "cloudinary";
+cloudinary.config(process.env.CLOUDINARY_URL || "");
+
 type Data = { message: string } | IProduct[] | IProduct;
 
 export default function handler(
@@ -28,11 +31,17 @@ const getProducts = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   await db.connect();
   const products = await Product.find().sort({ title: "asc" }).lean();
   await db.disconnect();
+  
+  const updatedProduct = products.map(product => {
+    product.images = product.images.map(image => {
+        return image.includes('http') ? image : `${process.env.HOST_NAME}products/${ image }`
+    })
+    return product
+})
 
-  res.status(200).json(products);
 
-  //TODO:
-  //tendremos que actualizar las imágenes
+  res.status(200).json(updatedProduct);
+
 };
 
 const updateProduct = async (
@@ -60,10 +69,21 @@ const updateProduct = async (
       await db.disconnect();
       return res
         .status(400)
-        .json({ message: "Does not exist product with _id: " + _id });
+        .json({ message: "Does not exist product with this ID: " + _id });
     }
 
-    //TODO: eliminar imágenes en Cloudinary
+    //Elimina imágenes en Cloudinary
+    product.images.forEach(async (image) => {
+      if (!images.includes(image)) {
+        const [fileID, extension] = image
+          .substring(image.lastIndexOf("/") + 1)
+          .split(".");
+        console.log({ image, extension, fileID });
+        await cloudinary.uploader.destroy(fileID);
+      }
+    });
+    //
+
 
     await product.update(req.body);
     await db.disconnect();
@@ -83,35 +103,31 @@ const createProduct = async (
   const { images = [] } = req.body as IProduct;
 
   if (images.length < 2) {
-    return res.status(400).json({ message: "At least two images are required" });
+    return res
+      .status(400)
+      .json({ message: "At least two images are required" });
   }
 
-  //TODO: prevenir el localhost
-
   try {
-    
     await db.connect();
 
     const productInDB = await Product.findOne({ slug: req.body.slug });
-    if ( productInDB) {
-        await db.disconnect();
-        return res.status(400).json({ message: 'Already exists a product with this slug' });
+    if (productInDB) {
+      await db.disconnect();
+      return res
+        .status(400)
+        .json({ message: "Already exists a product with this slug" });
     }
 
-    const product = new Product( req.body );
+    const product = new Product(req.body);
     await product.save();
 
     await db.disconnect();
 
-    return res.status(201).json( product );
-
+    return res.status(201).json(product);
   } catch (error) {
-
-    console.log(error);    
+    console.log(error);
     await db.disconnect();
     return res.status(400).json({ message: "Check console log server" });
-  
-}
-
-
+  }
 };

@@ -59,7 +59,12 @@ const OrderPageAdmin: NextPage<Props> = ({ order }) => {
 
             <Grid container className="fadeIn">
                 <Grid item xs={12} sm={7}>
-                    <CartList products={ order.orderItems } />
+                    <CartList products={ order.orderItems = order.orderItems.map( product => {
+                        product.images = product.images.includes('http')
+                        ? product.images
+                        : `${ process.env.HOST_NAME}products/${ product.images }`;
+                        return product;
+                    })} />
                 </Grid>
                 <Grid item xs={12} sm={5}>
                     <Card className='summary-card'>

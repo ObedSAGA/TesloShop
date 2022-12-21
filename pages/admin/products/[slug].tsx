@@ -99,12 +99,12 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         }
         
         try {
+
             for (const file of target.files) {
                 const formData = new FormData();
                 formData.append('file', file);
                 const { data } = await tesloApi.post<{message: string}>('/admin/uploads', formData);
-                console.log({ data });
-                
+                setValue('images', [...getValues('images'), data.message], { shouldValidate: true });
             }
         } catch (error) {
             console.log({error});
@@ -112,6 +112,14 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         }
         
 
+    }
+
+    const onDeleteImage = ( image: string) => {
+        setValue(
+            'images', 
+            getValues('images').filter( img => img !== image),
+            { shouldValidate: true}
+            );
     }
 
     const onSubmitForm = async( form: FormData ) => {
@@ -353,21 +361,26 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                                 label="Son necesarias al menos 2 imágenes"
                                 color='error'
                                 variant='outlined'
+                                sx={{ display: getValues('images').length < 2 ? 'flex' : 'none'}}
                             />
 
                             <Grid container spacing={2}>
                                 {
-                                    product.images.map( img => (
+                                    getValues('images').map( img => (
                                         <Grid item xs={4} sm={3} key={img}>
                                             <Card>
                                                 <CardMedia 
                                                     component='img'
                                                     className='fadeIn'
-                                                    image={ `/products/${ img }` }
+                                                    image={ img }
                                                     alt={ img }
                                                 />
                                                 <CardActions>
-                                                    <Button fullWidth color="error">
+                                                    <Button 
+                                                        fullWidth 
+                                                        color="error"
+                                                        onClick={ () => onDeleteImage(img) }
+                                                    >
                                                         Borrar
                                                     </Button>
                                                 </CardActions>
